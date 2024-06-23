@@ -5,7 +5,8 @@ from django.db.models.fields import CharField, TextField
 import unicodedata
 import re
 from PIL import Image
-# from django.utils import timezone
+from django.utils import timezone
+
 
 
 def validate_image(image):
@@ -13,19 +14,21 @@ def validate_image(image):
      file_mime_type = Image.open(image).get_format_mimetype()
      if file_mime_type not in valid_mime_types:
          raise ValidationError('Unsupported file type. ')
+     
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, help_text="Le nom de la categorie")
+    description = models.TextField(max_length=100, help_text="Texte qui décrit la catégorie")
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
 
 class Divinity(models.Model):
-    GENDER_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
-        ('A', 'Androgyn')
-    ]
-
-    STATUS_CHOICE = [
-        ('G', 'God/Godess'),
-        ('S', 'Spirit'),
-    ]
     name = models.CharField(max_length=100, help_text="Le nom principal de la divinité, y compris d'éventuels surnoms ou variantes régionales.")
+    gender = models.CharField(max_length=1,default="M", choices = [('M', 'Male'), ('F', 'Female'), ('A', 'Androgyn')], 
+                              help_text="Genre de la divinité. Elle peut être féminine, masculine, ou androgyne")
     domain = models.CharField(max_length=100, help_text="Les principaux domaines ou éléments associés à la divinité (e.g., tonnerre, amour, guerre).")
     main_symbol = models.CharField(max_length=100, help_text="Un élément ou objet principal associé à la divinité, tel qu'un animal, une plante, ou un objet spécifique.")
     associated_myths = models.TextField(help_text="Descriptions des mythes ou légendes les plus connus impliquant la divinité.")
@@ -38,14 +41,14 @@ class Divinity(models.Model):
     country = models.CharField(max_length=50, blank=True, null=True, help_text="Pays actuel d'où est issue la divinité")
     origin = models.CharField(max_length=100, help_text="Région ou culture spécifique d'où la divinité est originaire.")
     ethnicity = models.CharField(max_length=100, help_text="Groupe ethnique principalement associé à la divinité.")
-    image = models.ImageField(upload_to='divinity_images/', null=True, blank=True, validators=[validate_image], help_text="Champ pour stocker des images représentatives ou artistiques de la divinité.")
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default="M", help_text="Genre de la divinité. Elle peut être féminine, masculine, ou androgyne")
-    status = models.CharField(max_length=1, choices=STATUS_CHOICE, default="G", help_text="Statut de la divinité. Elle peut être un Dieu, une Déesse ou un Esprit.")
+    image = models.ImageField(upload_to='divinity_images/', null=True, blank=True, validators=[validate_image], 
+                              help_text="Champ pour stocker des images représentatives ou artistiques de la divinité.")
+    image_caption = models.CharField(max_length=255, blank=True, null=True)
     prompt = models.TextField(max_length=300, blank=True, null=True, help_text="Aggrégation des attributs pour composer le prompt de la génération de l'image du personnage")
     parents = models.CharField(max_length=255, blank=True, null=True, help_text="Noms des parents de la divinité, si applicable.")
     descendants = models.CharField(max_length=255, blank=True, null=True, help_text="Noms des descendants de la divinité, si applicable.")
-    # created_at = models.DateTimeField(auto_now_add=True, default=timezone.now)
-    # updated_at = models.DateTimeField(auto_now =True, default=timezone.now)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -73,3 +76,35 @@ class Divinity(models.Model):
                     print(f"Cleaning {field.name}: '{original_value}' to '{cleaned_value}'")  # Log pour le débogage
                 setattr(self, field.name, cleaned_value)
         super().save(*args, **kwargs)
+
+class Hero(models.Model):
+    name = models.CharField(max_length=100)
+    gender = models.CharField(max_length=1, choices=[('M', 'Masculin'), ('F', 'Féminin'), ('A', 'Androgyne')])
+    story = models.TextField()
+    country = models.CharField(max_length=100)
+    origin = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='hero_images/', null=True, blank=True)
+    image_caption = models.CharField(max_length=255, null=True , blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='heroes')
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return self.name
+    
+class MythicalCreature(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    country = models.CharField(max_length=100)
+    habitat = models.CharField(max_length=255)
+    powers = models.TextField()
+    image = models.ImageField(upload_to='creature_images/', null=True, blank=True)
+    image_caption = models.CharField(max_length=255, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='creatures')
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name    
+    

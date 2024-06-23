@@ -1,20 +1,38 @@
 from rest_framework import serializers
-from .models import Divinity
-from PIL import Image
-from django.core.exceptions import ValidationError
+from .validator import  ImageValidationMixin
+from .models import Divinity, Category, Hero, MythicalCreature
 
 
-class DivinitySerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
+
+class DivinitySerializer(ImageValidationMixin, serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    
     class Meta:
         model = Divinity
         fields = '__all__'
 
-    def validate_image(self, image):
-        valid_mime_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
-        try:
-            file_mime_type = Image.open(image).get_format_mimetype()
-            if file_mime_type not in valid_mime_types:
-                raise ValidationError('Unsupported file type.')
-        except Exception as e:
-            raise ValidationError(f'Invalid image: {str(e)}')
-        return image
+
+  
+class HeroSerializer(ImageValidationMixin, serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    class Meta:
+        model = Hero
+        fields = '__all__'
+
+
+
+class MythicalCreatureSerializer(ImageValidationMixin, serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    class Meta:
+        model = MythicalCreature
+        fields = '__all__'
+
+
+
+    
+
