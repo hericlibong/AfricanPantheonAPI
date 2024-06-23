@@ -1,3 +1,2 @@
 venv/
-json_files/*json
-src/entities/json_files/*json
+src/entities/json_files/
