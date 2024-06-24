@@ -47,6 +47,7 @@ class Divinity(models.Model):
     prompt = models.TextField(max_length=300, blank=True, null=True, help_text="Aggrégation des attributs pour composer le prompt de la génération de l'image du personnage")
     parents = models.CharField(max_length=255, blank=True, null=True, help_text="Noms des parents de la divinité, si applicable.")
     descendants = models.CharField(max_length=255, blank=True, null=True, help_text="Noms des descendants de la divinité, si applicable.")
+    #category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='divinity')
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
