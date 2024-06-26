@@ -20,10 +20,10 @@ class DivinityAdmin(admin.ModelAdmin):
     search_fields = ('name', 'domain')
     
     # fields spécifie l'ordre et les champs à afficher dans le formulaire d'ajout/modification
-    fields = ('name', 'domain', 'main_symbol', 'associated_myths', 'characteristics', 
+    fields = ('name', 'domain', 'category', 'main_symbol', 'associated_myths', 'characteristics', 
               'manifestations', 'symbolic_animals', 'power_objects', 'cultural_role', 
               'festivals', 'country', 'origin', 'ethnicity', 'gender', 'image', 'image_caption',
-              'prompt', 'parents', 'descendants')
+              'parents', 'descendants')
     
     # readonly_fields spécifie les champs en lecture seule dans le formulaire
     readonly_fields = ('created_at', 'updated_at')
@@ -39,7 +39,8 @@ class DivinityAdmin(admin.ModelAdmin):
 class HeroAdmin(admin.ModelAdmin):
     list_display = ('name', 'gender', 'image')
     search_fields = ('name', '')
-    fields = ('name', 'gender', 'story', 'country', 'origin', 'image', 'image_caption',
+    fields = ('name', 'gender', 'story', 'titles', 'achievements', 'enemies', 'allies', 
+              'country', 'origin', 'image', 'image_caption','parents', 'descendants',
               'category','date_created', 'date_updated')
     readonly_fields = ('date_created', 'date_updated')
 
@@ -54,7 +55,7 @@ class MythicalCreatureAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'image')
     search_fields = ('name', '')
     fields = ('name', 'description', 'country', 'habitat', 
-              'powers', 'image', 'image_caption', 'category',
+              'powers', 'diet', 'size','appareance', 'weaknesses', 'strengths', 'image', 'image_caption', 'category',
               'date_created', 'date_updated')
     readonly_fields = ('date_created', 'date_updated')
 

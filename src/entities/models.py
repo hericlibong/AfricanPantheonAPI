@@ -1,11 +1,7 @@
-
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.db.models.fields import CharField, TextField
-import unicodedata
-import re
 from PIL import Image
-from django.utils import timezone
+
 
 
 
@@ -24,6 +20,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Divinity(models.Model):
     name = models.CharField(max_length=100, help_text="Le nom principal de la divinité, y compris d'éventuels surnoms ou variantes régionales.")
@@ -44,68 +41,56 @@ class Divinity(models.Model):
     image = models.ImageField(upload_to='divinity_images/', null=True, blank=True, validators=[validate_image], 
                               help_text="Champ pour stocker des images représentatives ou artistiques de la divinité.")
     image_caption = models.CharField(max_length=255, blank=True, null=True)
-    prompt = models.TextField(max_length=300, blank=True, null=True, help_text="Aggrégation des attributs pour composer le prompt de la génération de l'image du personnage")
     parents = models.CharField(max_length=255, blank=True, null=True, help_text="Noms des parents de la divinité, si applicable.")
     descendants = models.CharField(max_length=255, blank=True, null=True, help_text="Noms des descendants de la divinité, si applicable.")
-    #category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='divinity')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='divinity')
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
 
-    @staticmethod
-    def clean_input(text):
-        if isinstance(text, str):
-            # Normalisation Unicode
-            text = unicodedata.normalize('NFKD', text)
-            # Supprimer les caractères de contrôle
-            text = ''.join(c for c in text if unicodedata.category(c) != 'Cc')
-            # Supprimer les caractères non désirés spécifiques
-            text = re.sub(r'[^\w\s\-.,;:!?\'"]+', '', text)
-            # Supprimer les espaces supplémentaires
-            text = re.sub(r'\s+', ' ', text)
-            text = text.encode('utf-8', 'replace').decode('utf-8').strip()
-        return text
-   
-    def save(self, *args, **kwargs):
-        for field in self._meta.fields:
-            if isinstance(field, (CharField, TextField)):
-                original_value = getattr(self, field.name)
-                cleaned_value = self.clean_input(original_value)
-                if cleaned_value != original_value:
-                    print(f"Cleaning {field.name}: '{original_value}' to '{cleaned_value}'")  # Log pour le débogage
-                setattr(self, field.name, cleaned_value)
-        super().save(*args, **kwargs)
-
+    
 class Hero(models.Model):
-    name = models.CharField(max_length=100)
-    gender = models.CharField(max_length=1, choices=[('M', 'Masculin'), ('F', 'Féminin'), ('A', 'Androgyne')])
-    story = models.TextField()
-    country = models.CharField(max_length=100)
-    origin = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='hero_images/', null=True, blank=True)
-    image_caption = models.CharField(max_length=255, null=True , blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='heroes')
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True)
-
+    name = models.CharField(max_length=100, help_text="Le nom principal du héros.")
+    gender = models.CharField(max_length=1, choices=[('M', 'Masculin'), ('F', 'Féminin'), ('A', 'Androgyne')], help_text="Le genre du héros.")
+    story = models.TextField(help_text="L'histoire ou les légendes associées au héros.")
+    titles = models.CharField(max_length=255, blank=True, null=True, help_text="Titres honorifiques ou noms alternatifs du héros.")
+    achievements = models.TextField(blank=True, null=True, help_text="Réalisations notables ou exploits du héros.")
+    enemies = models.TextField(blank=True, null=True, help_text="Ennemis ou adversaires du héros dans les mythes.")
+    allies = models.TextField(blank=True, null=True, help_text="Alliés ou compagnons du héros dans les mythes.")
+    country = models.CharField(max_length=100, help_text="Le pays d'origine du héros.")
+    origin = models.CharField(max_length=100, help_text="La région ou culture spécifique d'où le héros est originaire.")
+    image = models.ImageField(upload_to='hero_images/', null=True, blank=True, validators=[validate_image], help_text="Champ pour stocker des images représentatives ou artistiques du héros.")
+    image_caption = models.CharField(max_length=255, null=True, blank=True, help_text="Légende descriptive de l'image du héros.")
+    parents = models.CharField(max_length=255, blank=True, null=True, help_text="Nom des parents du héros ou parents connus.")
+    descendants = models.CharField(max_length=255, blank=True, null=True, help_text="Noms des descendants de du héros, si descendants connus.")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='heroes', help_text="Catégorie à laquelle appartient le héros.")
+    date_created = models.DateTimeField(auto_now_add=True, help_text="Date de création du héros.")
+    date_updated = models.DateTimeField(auto_now=True, help_text="Date de la dernière mise à jour du héros.")
 
     def __str__(self):
         return self.name
+
     
 class MythicalCreature(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    country = models.CharField(max_length=100)
-    habitat = models.CharField(max_length=255)
-    powers = models.TextField()
-    image = models.ImageField(upload_to='creature_images/', null=True, blank=True)
-    image_caption = models.CharField(max_length=255, null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='creatures')
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=100, help_text="Le nom principal de la créature mythique.")
+    description = models.TextField(help_text="Description détaillée de la créature mythique.")
+    country = models.CharField(max_length=100, help_text="Le pays d'origine de la créature mythique.")
+    habitat = models.CharField(max_length=255, help_text="L'habitat naturel ou mythologique de la créature.")
+    powers = models.TextField(help_text="Les pouvoirs ou capacités surnaturelles de la créature.")
+    diet = models.CharField(max_length=255, blank=True, null=True, help_text="Régime alimentaire de la créature mythique.")
+    size = models.CharField(max_length=100, blank=True, null=True, help_text="Taille ou dimensions typiques de la créature.")
+    appareance = models.TextField(blank=True, null=True, help_text= "Brêve description de la créature. Mise en avant de ses attributs physiques")
+    weaknesses = models.TextField(blank=True, null=True, help_text="Faiblesses ou vulnérabilités de la créature.")
+    strengths = models.TextField(blank=True, null=True, help_text="Forces ou capacités spéciales de la créature.")
+    image = models.ImageField(upload_to='creature_images/', null=True, blank=True, validators=[validate_image], help_text="Champ pour stocker des images représentatives ou artistiques de la créature.")
+    image_caption = models.CharField(max_length=255, null=True, blank=True, help_text="Légende descriptive de l'image de la créature.")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='creatures', help_text="Catégorie à laquelle appartient la créature mythique.")
+    date_created = models.DateTimeField(auto_now_add=True, help_text="Date de création de la créature.")
+    date_updated = models.DateTimeField(auto_now=True, help_text="Date de la dernière mise à jour de la créature.")
 
     def __str__(self):
-        return self.name    
+        return self.name
+  
     
