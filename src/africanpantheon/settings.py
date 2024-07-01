@@ -41,7 +41,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "entities",
     "drf_yasg",
+    "django_filters",
 ]
+
+# Configuration de Django Rest Framework
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

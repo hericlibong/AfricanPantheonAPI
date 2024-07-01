@@ -1,7 +1,9 @@
-from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from .models import Divinity, Category, Hero, MythicalCreature
 from .serializers import DivinitySerializer, CategorySerializer, HeroSerializer, MythicalCreatureSerializer
+
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import DivinityFilter, HeroFilter, MythicalCreatureFilter
 
 
 
@@ -16,6 +18,10 @@ class DivinityViewSet(ModelViewSet):
     
     def get_queryset(self):
         return Divinity.objects.all()
+    
+    filter_backends= [DjangoFilterBackend]
+    filterset_class = DivinityFilter
+
 
 class HeroViewSet(ModelViewSet):
    serializer_class = HeroSerializer
@@ -23,11 +29,17 @@ class HeroViewSet(ModelViewSet):
    def get_queryset(self):
        return Hero.objects.all()
     
+   filter_backends = [DjangoFilterBackend]
+   filterset_class = HeroFilter
+    
 class MythicalCreatureViewSet(ModelViewSet):
     serializer_class = MythicalCreatureSerializer
     
     def get_queryset(self):
         return MythicalCreature.objects.all()
+    
+    filter_backends = [DjangoFilterBackend]
+    filterSet = MythicalCreatureFilter
     
 
 
