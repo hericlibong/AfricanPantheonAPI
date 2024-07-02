@@ -43,7 +43,7 @@ class MythicalCreatureListSerializer(ImageValidationMixin, serializers.ModelSeri
 
     class Meta:
         model = MythicalCreature
-        fields = ['id', 'date_created', 'date_updated', 'name', 'appareance', 'habitat', 'country',
+        fields = ['id', 'date_created', 'date_updated', 'name', 'appareance', 'habitat', 'country','image',
                   'category']
         
 class MythicalCreatureDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
@@ -62,9 +62,9 @@ class CategoryListSerializer(serializers.ModelSerializer):
         fields = ['id', 'date_created', 'date_updated', 'name']
 
 class CategoryDetailSerializer(serializers.ModelSerializer):
-    divinity = serializers.SerializerMethodField()
-    heroes = serializers.SerializerMethodField()
-    creatures = serializers.SerializerMethodField()
+    divinity = DivinityListSerializer(many=True, read_only=True)
+    heroes = HeroListSerializer(many=True, read_only=True)
+    creatures = MythicalCreatureListSerializer(many=True, read_only=True)
 
     class Meta:
         model = Category
