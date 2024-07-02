@@ -9,9 +9,12 @@ from .filters import DivinityFilter, HeroFilter, MythicalCreatureFilter
 
 class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
+    filter_backends = [DjangoFilterBackend]
     
     def get_queryset(self):
         return Category.objects.all()
+
+
 
 class DivinityViewSet(ModelViewSet):
     serializer_class = DivinitySerializer
@@ -31,7 +34,8 @@ class HeroViewSet(ModelViewSet):
     
    filter_backends = [DjangoFilterBackend]
    filterset_class = HeroFilter
-    
+
+
 class MythicalCreatureViewSet(ModelViewSet):
     serializer_class = MythicalCreatureSerializer
     
