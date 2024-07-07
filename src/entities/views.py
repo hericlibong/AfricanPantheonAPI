@@ -1,4 +1,4 @@
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from .models import Divinity, Category, Hero, MythicalCreature
 from .serializers import (DivinityDetailSerializer, DivinityListSerializer, CategoryDetailSerializer, 
                           CategoryListSerializer, HeroDetailSerializer, HeroListSerializer, 
@@ -16,7 +16,28 @@ class MultipleSerializerMixin:
         return self.serializer_class
 
 
-class CategoryViewSet(MultipleSerializerMixin, ModelViewSet):
+class AdminCategoryViewSet(MultipleSerializerMixin, ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategoryListSerializer
+    detail_serializer_class = CategoryDetailSerializer
+    filter_backends = [DjangoFilterBackend]
+
+class AdminDivinityViewSet(MultipleSerializerMixin, ModelViewSet):
+    queryset = Divinity.objects.all()
+    serializer_class = DivinityDetailSerializer
+    detail_serializer_class = DivinityDetailSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = DivinityFilter
+
+class AdminHeroViewSet(MultipleSerializerMixin, ModelViewSet):
+    queryset = Hero.objects.all()
+    serializer_class = HeroListSerializer
+    detail_serializer_class = HeroDetailSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = HeroFilter
+
+
+class CategoryViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoryListSerializer
     detail_serializer_class = CategoryDetailSerializer
@@ -24,7 +45,7 @@ class CategoryViewSet(MultipleSerializerMixin, ModelViewSet):
     
     
     
-class DivinityViewSet(MultipleSerializerMixin, ModelViewSet):
+class DivinityViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
     queryset = Divinity.objects.all()
     serializer_class = DivinityListSerializer
     detail_serializer_class = DivinityDetailSerializer
@@ -32,7 +53,7 @@ class DivinityViewSet(MultipleSerializerMixin, ModelViewSet):
     filterset_class = DivinityFilter
 
 
-class HeroViewSet(MultipleSerializerMixin, ModelViewSet):
+class HeroViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
    queryset = Hero.objects.all()
    serializer_class = HeroListSerializer
    detail_serializer_class = HeroDetailSerializer
@@ -40,7 +61,7 @@ class HeroViewSet(MultipleSerializerMixin, ModelViewSet):
    filterset_class = HeroFilter
 
 
-class MythicalCreatureViewSet(MultipleSerializerMixin, ModelViewSet):
+class MythicalCreatureViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
     queryset = MythicalCreature.objects.all()
     serializer_class = MythicalCreatureListSerializer
     detail_serializer_class = MythicalCreatureDetailSerializer  

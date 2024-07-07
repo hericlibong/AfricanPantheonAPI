@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from PIL import Image
+from .validator import UniqueNameMixin
 
 
 
@@ -12,11 +13,22 @@ def validate_image(image):
          raise ValidationError('Unsupported file type. ')
      
 
-class Category(models.Model):
+class Category(models.Model, UniqueNameMixin):
     name = models.CharField(max_length=100, help_text="Le nom de la categorie")
     description = models.TextField(max_length=100, help_text="Texte qui décrit la catégorie")
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+
+    # def clean(self):
+    #     if Category.objects.filter(name=self.name).exists():
+    #         raise ValidationError("Category with this name already exists")
+        
+    # def save(self, *args, **kwargs):
+    #     self.clean()
+    #     super().save(*args, **kwargs)
+    
+        
+
 
     def __str__(self):
         return self.name
@@ -47,6 +59,10 @@ class Divinity(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
 
+    def validate_name(self):
+        if Category.objects.filter(name=self.name).exists():
+            raise ValidationError("Hero already exists")
+
     def __str__(self):
         return self.name
 
@@ -59,7 +75,7 @@ class Hero(models.Model):
     achievements = models.TextField(blank=True, null=True, help_text="Réalisations notables ou exploits du héros.")
     enemies = models.TextField(blank=True, null=True, help_text="Ennemis ou adversaires du héros dans les mythes.")
     allies = models.TextField(blank=True, null=True, help_text="Alliés ou compagnons du héros dans les mythes.")
-    country = models.CharField(max_length=100, help_text="Le pays d'origine du héros.")
+    country = models.CharField(max_length=100, blank=True, null=True, help_text="Le pays d'origine du héros.")
     origin = models.CharField(max_length=100, help_text="La région ou culture spécifique d'où le héros est originaire.")
     image = models.ImageField(upload_to='hero_images/', null=True, blank=True, validators=[validate_image], help_text="Champ pour stocker des images représentatives ou artistiques du héros.")
     image_caption = models.CharField(max_length=255, null=True, blank=True, help_text="Légende descriptive de l'image du héros.")
@@ -68,6 +84,10 @@ class Hero(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='heroes', help_text="Catégorie à laquelle appartient le héros.")
     date_created = models.DateTimeField(auto_now_add=True, help_text="Date de création du héros.")
     date_updated = models.DateTimeField(auto_now=True, help_text="Date de la dernière mise à jour du héros.")
+
+    def validate_name(self):
+        if Category.objects.filter(name=self.name).exists():
+            raise ValidationError("Hero already exists")
 
     def __str__(self):
         return self.name
@@ -89,6 +109,14 @@ class MythicalCreature(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='creatures', help_text="Catégorie à laquelle appartient la créature mythique.")
     date_created = models.DateTimeField(auto_now_add=True, help_text="Date de création de la créature.")
     date_updated = models.DateTimeField(auto_now=True, help_text="Date de la dernière mise à jour de la créature.")
+
+    def clean(self):
+        if Category.objects.filter(name=self.name).exists():
+            raise ValidationError("Creature name already exists")
+        
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name

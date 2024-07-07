@@ -11,3 +11,14 @@ class ImageValidationMixin:
         except Exception as e:
             raise ValidationError(f'Invalid image: {str(e)}')
         return image
+    
+
+class UniqueNameMixin:
+    def clean(self):
+        if self.__class__.objects.filter(name=self.name).exists():
+            raise ValidationError(f"{self.__class__.__name__} with this name already exists")
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)

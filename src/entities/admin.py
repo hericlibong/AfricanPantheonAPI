@@ -1,11 +1,14 @@
 from django.contrib import admin
 from .models import Divinity, Hero, MythicalCreature, Category
+from .admi_forms import CategoryAdminForm, DivinityAdminForm, HeroAdminForm, MythicalCreaturedminForm, UniqueNameAdminForm
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    # form = CategoryAdminForm
+    form = UniqueNameAdminForm
     list_display = ('name', 'description')
-    fields = ('name', 'description')
+    fields = ('name', 'description', 'date_created', 'date_updated')
     # readonly_fields spécifie les champs en lecture seule dans le formulaire
     readonly_fields = ('date_created', 'date_updated')
 
@@ -13,36 +16,57 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Divinity)
 class DivinityAdmin(admin.ModelAdmin):
-    # list_display spécifie les champs à afficher dans la liste des objets du modèle
+    form = DivinityAdminForm
     list_display = ('name', 'domain', 'gender', 'image')
-    
-    # search_fields spécifie les champs sur lesquels il est possible de faire des recherches
     search_fields = ('name', 'domain')
+    readonly_fields = ('date_created', 'date_updated')
     
-    # fields spécifie l'ordre et les champs à afficher dans le formulaire d'ajout/modification
-    fields = ('name', 'domain', 'category', 'main_symbol', 'associated_myths', 'characteristics', 
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'domain', 'category', 'main_symbol', 'associated_myths', 'characteristics', 
               'manifestations', 'symbolic_animals', 'power_objects', 'cultural_role', 
-              'festivals', 'country', 'origin', 'ethnicity', 'gender', 'image', 'image_caption',
-              'parents', 'descendants')
+              'festivals', 'country', 'origin', 'ethnicity', 'gender')
+        }),
+        ('Image Information', {
+            'fields':('image', 'image_caption')
+        }),
+        ('Family', {
+            'fields':('parents', 'descendants')
+        }),
+        ('Date Information', {
+            'fields':('date_created', 'date_updated')
+        }),  
+    )
+    def date_created(self, obj):
+        return obj.date_created
     
-    # readonly_fields spécifie les champs en lecture seule dans le formulaire
-    readonly_fields = ('created_at', 'updated_at')
+    def date_updated(self, obj):
+        return obj.date_updated
+    
 
-    # Méthodes supplémentaires pour afficher les champs en lecture seule
-    def created_at(self, obj):
-        return obj.created_at
-
-    def updated_at(self, obj):
-        return obj.updated_at
+  
 
 @admin.register(Hero)
 class HeroAdmin(admin.ModelAdmin):
+    form = HeroAdminForm
     list_display = ('name', 'gender', 'image')
     search_fields = ('name', '')
-    fields = ('name', 'gender', 'story', 'titles', 'achievements', 'enemies', 'allies', 
-              'country', 'origin', 'image', 'image_caption','parents', 'descendants',
-              'category','date_created', 'date_updated')
     readonly_fields = ('date_created', 'date_updated')
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'gender', 'story', 'titles', 'achievements', 'enemies', 'allies', 
+              'country', 'origin', 'category')        
+    }),
+        ('Image Information', {
+            'fields':('image', 'image_caption')
+        }),
+        ('Family', {
+            'fields':('parents', 'descendants')
+        }),
+        ('Date Information', {
+            'fields':('date_created', 'date_updated')
+        }),  
+    )
 
     def date_created(self, obj):
         return obj.date_created
@@ -51,13 +75,28 @@ class HeroAdmin(admin.ModelAdmin):
         return obj.date_updated
     
 @admin.register(MythicalCreature)
+
 class MythicalCreatureAdmin(admin.ModelAdmin):
+    form = MythicalCreaturedminForm
     list_display = ('name', 'description', 'image')
     search_fields = ('name', '')
-    fields = ('name', 'description', 'country', 'habitat', 
-              'powers', 'diet', 'size','appareance', 'weaknesses', 'strengths', 'image', 'image_caption', 'category',
-              'date_created', 'date_updated')
+    # fields = ('name', 'description', 'country', 'habitat', 
+    #           'powers', 'diet', 'size','appareance', 'weaknesses', 'strengths', 'image', 'image_caption', 'category',
+    #           'date_created', 'date_updated')
     readonly_fields = ('date_created', 'date_updated')
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'description', 'country', 'habitat', 
+              'powers', 'diet', 'size','appareance', 'weaknesses', 'strengths', 'category')        
+    }),
+        ('Image Information', {
+            'fields':('image', 'image_caption')
+        }),
+        ('Date Information', {
+            'fields':('date_created', 'date_updated')
+        }),  
+    )
 
     def date_created(self, obj):
         return obj.date_created

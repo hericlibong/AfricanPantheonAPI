@@ -11,6 +11,11 @@ class DivinityListSerializer(ImageValidationMixin, serializers.ModelSerializer):
         model = Divinity
         fields = ['id', 'date_created', 'date_updated', 'name', 
                   'gender', 'cultural_role', 'country', 'image', 'category']
+    
+    def validate_name(self, value):
+        if Category.objects.filter(name=value).exists():
+            raise serializers.ValidationError("Divnity already exists")
+        return value
 
 
 class DivinityDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
@@ -28,6 +33,11 @@ class HeroListSerializer(ImageValidationMixin, serializers.ModelSerializer):
         model = Hero
         fields = ['id', 'date_created', 'date_updated', 'name','titles', 'gender',
                   'country', 'image', 'category']
+    
+    def validate_name(self, value):
+        if Hero.objects.filter(name=value).exists():
+            raise serializers.ValidationError('Hero aleady exists')
+        return value
         
 
 class HeroDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
@@ -59,7 +69,19 @@ class CategoryListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'date_created', 'date_updated', 'name']
+        fields = ['id', 'date_created', 'date_updated', 'name', 'description']
+
+    def validate_name(self, value):
+        if Category.objects.filter(name=value).exists():
+            raise serializers.ValidationError("Category already exists")
+        return value 
+    
+    def validate(data):
+        if data['name'] not in data['description']:
+            raise serializers.ValidationError('Category name must be in description')
+        return data
+
+
 
 class CategoryDetailSerializer(serializers.ModelSerializer):
     divinity = DivinityListSerializer(many=True, read_only=True)
