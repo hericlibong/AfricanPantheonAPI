@@ -18,15 +18,6 @@ class Category(models.Model, UniqueNameMixin):
     description = models.TextField(max_length=100, help_text="Texte qui décrit la catégorie")
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
-
-    # def clean(self):
-    #     if Category.objects.filter(name=self.name).exists():
-    #         raise ValidationError("Category with this name already exists")
-        
-    # def save(self, *args, **kwargs):
-    #     self.clean()
-    #     super().save(*args, **kwargs)
-    
         
 
 
@@ -34,7 +25,7 @@ class Category(models.Model, UniqueNameMixin):
         return self.name
 
 
-class Divinity(models.Model):
+class Divinity(models.Model, UniqueNameMixin):
     name = models.CharField(max_length=100, help_text="Le nom principal de la divinité, y compris d'éventuels surnoms ou variantes régionales.")
     gender = models.CharField(max_length=1,default="M", choices = [('M', 'Male'), ('F', 'Female'), ('A', 'Androgyn')], 
                               help_text="Genre de la divinité. Elle peut être féminine, masculine, ou androgyne")
@@ -67,7 +58,7 @@ class Divinity(models.Model):
         return self.name
 
     
-class Hero(models.Model):
+class Hero(models.Model, UniqueNameMixin):
     name = models.CharField(max_length=100, help_text="Le nom principal du héros.")
     gender = models.CharField(max_length=1, choices=[('M', 'Masculin'), ('F', 'Féminin'), ('A', 'Androgyne')], help_text="Le genre du héros.")
     story = models.TextField(help_text="L'histoire ou les légendes associées au héros.")
@@ -93,7 +84,7 @@ class Hero(models.Model):
         return self.name
 
     
-class MythicalCreature(models.Model):
+class MythicalCreature(models.Model, UniqueNameMixin):
     name = models.CharField(max_length=100, help_text="Le nom principal de la créature mythique.")
     description = models.TextField(help_text="Description détaillée de la créature mythique.")
     country = models.CharField(max_length=100, help_text="Le pays d'origine de la créature mythique.")

@@ -1,11 +1,10 @@
 from django.contrib import admin
 from .models import Divinity, Hero, MythicalCreature, Category
-from .admi_forms import CategoryAdminForm, DivinityAdminForm, HeroAdminForm, MythicalCreaturedminForm, UniqueNameAdminForm
+from .admin_forms import UniqueNameAdminForm
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    # form = CategoryAdminForm
     form = UniqueNameAdminForm
     list_display = ('name', 'description')
     fields = ('name', 'description', 'date_created', 'date_updated')
@@ -13,10 +12,9 @@ class CategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('date_created', 'date_updated')
 
 
-
 @admin.register(Divinity)
 class DivinityAdmin(admin.ModelAdmin):
-    form = DivinityAdminForm
+    form = UniqueNameAdminForm
     list_display = ('name', 'domain', 'gender', 'image')
     search_fields = ('name', 'domain')
     readonly_fields = ('date_created', 'date_updated')
@@ -37,18 +35,11 @@ class DivinityAdmin(admin.ModelAdmin):
             'fields':('date_created', 'date_updated')
         }),  
     )
-    def date_created(self, obj):
-        return obj.date_created
-    
-    def date_updated(self, obj):
-        return obj.date_updated
-    
-
   
-
+    
 @admin.register(Hero)
 class HeroAdmin(admin.ModelAdmin):
-    form = HeroAdminForm
+    form = UniqueNameAdminForm
     list_display = ('name', 'gender', 'image')
     search_fields = ('name', '')
     readonly_fields = ('date_created', 'date_updated')
@@ -68,23 +59,13 @@ class HeroAdmin(admin.ModelAdmin):
         }),  
     )
 
-    def date_created(self, obj):
-        return obj.date_created
-    
-    def date_updated(self, obj):
-        return obj.date_updated
     
 @admin.register(MythicalCreature)
-
 class MythicalCreatureAdmin(admin.ModelAdmin):
-    form = MythicalCreaturedminForm
+    form = UniqueNameAdminForm
     list_display = ('name', 'description', 'image')
     search_fields = ('name', '')
-    # fields = ('name', 'description', 'country', 'habitat', 
-    #           'powers', 'diet', 'size','appareance', 'weaknesses', 'strengths', 'image', 'image_caption', 'category',
-    #           'date_created', 'date_updated')
     readonly_fields = ('date_created', 'date_updated')
-
     fieldsets = (
         ('Basic Information', {
             'fields': ('name', 'description', 'country', 'habitat', 
@@ -98,11 +79,4 @@ class MythicalCreatureAdmin(admin.ModelAdmin):
         }),  
     )
 
-    def date_created(self, obj):
-        return obj.date_created
     
-    def date_updated(self, obj):
-        return obj.date_updated
-
-
-
