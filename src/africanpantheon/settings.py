@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     "entities",
     "drf_yasg",
     "django_filters",
-    "profile_users",
+    "user_profiles",
+
 ]
 
 # Configuration de Django Rest Framework
@@ -140,4 +141,6 @@ MEDIA_URL = '/media/'
 
 
 # Configuration de l'authentification
+AUTH_USER_MODEL = 'user_profiles.UserProfile'
+
 
