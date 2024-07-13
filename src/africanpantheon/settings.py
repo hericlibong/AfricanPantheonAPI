@@ -140,4 +140,4 @@ MEDIA_URL = '/media/'
 
 
 # Configuration de l'authentification
-AUTH_USER_MODEL = 'profile_users.UserProfile'
+
