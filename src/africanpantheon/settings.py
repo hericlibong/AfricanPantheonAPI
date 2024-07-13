@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "entities",
     "drf_yasg",
     "django_filters",
+    "profile_users",
 ]
 
 # Configuration de Django Rest Framework
@@ -136,3 +137,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Chemin de base pour les fichiers médias
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
+
+
+# Configuration de l'authentification
+AUTH_USER_MODEL = 'profile_users.UserProfile'
