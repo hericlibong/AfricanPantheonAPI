@@ -6,6 +6,7 @@ from .models import Divinity, Category, Hero, MythicalCreature
 
 class DivinityListSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
+    created_by = serializers.ReadOnlyField(source='created_by.email')
 
     class Meta:
         model = Divinity
@@ -20,6 +21,7 @@ class DivinityListSerializer(ImageValidationMixin, serializers.ModelSerializer):
 
 class DivinityDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
+    created_by = serializers.ReadOnlyField(source='created_by.email')
     
     class Meta:
         model = Divinity
@@ -28,6 +30,7 @@ class DivinityDetailSerializer(ImageValidationMixin, serializers.ModelSerializer
 
 class HeroListSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
+    created_by = serializers.ReadOnlyField(source='created_by.email')
 
     class Meta:
         model = Hero
@@ -42,6 +45,7 @@ class HeroListSerializer(ImageValidationMixin, serializers.ModelSerializer):
 
 class HeroDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
+    created_by = serializers.ReadOnlyField(source='created_by.email')
     
     class Meta:
         model = Hero
@@ -50,6 +54,7 @@ class HeroDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
 
 class MythicalCreatureListSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
+    created_by = serializers.ReadOnlyField(source='created_by.email')
 
     class Meta:
         model = MythicalCreature
@@ -58,6 +63,7 @@ class MythicalCreatureListSerializer(ImageValidationMixin, serializers.ModelSeri
         
 class MythicalCreatureDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
+    created_by = serializers.ReadOnlyField(source='created_by.email')
     
     class Meta:
         model = MythicalCreature

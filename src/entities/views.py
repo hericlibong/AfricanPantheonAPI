@@ -16,6 +16,11 @@ class MultipleSerializerMixin:
         if self.action == 'retrieve' and self.detail_serializer_class is not None:
             return self.detail_serializer_class
         return self.serializer_class
+    
+class UserCreatedMixin:
+    """A mixin that allows you to set the user field automatically."""
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
 
 class AdminCategoryViewSet(MultipleSerializerMixin, ModelViewSet):
@@ -26,7 +31,7 @@ class AdminCategoryViewSet(MultipleSerializerMixin, ModelViewSet):
     filter_backends = [DjangoFilterBackend]
 
 
-class AdminDivinityViewSet(MultipleSerializerMixin, ModelViewSet):
+class AdminDivinityViewSet(MultipleSerializerMixin, ModelViewSet, UserCreatedMixin):
     """A viewset for viewing and editing divinity instances."""
     queryset = Divinity.objects.all()
     serializer_class = DivinityDetailSerializer
@@ -35,7 +40,7 @@ class AdminDivinityViewSet(MultipleSerializerMixin, ModelViewSet):
     filterset_class = DivinityFilter
 
 
-class AdminHeroViewSet(MultipleSerializerMixin, ModelViewSet):
+class AdminHeroViewSet(MultipleSerializerMixin, ModelViewSet, UserCreatedMixin):
     """A viewset for viewing and editing hero instances."""
     queryset = Hero.objects.all()
     serializer_class = HeroListSerializer
@@ -52,7 +57,7 @@ class CategoryViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend]
     
        
-class DivinityViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
+class DivinityViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet, UserCreatedMixin):
     """A viewset for viewing divinity instances."""
     queryset = Divinity.objects.all()
     serializer_class = DivinityListSerializer
@@ -61,7 +66,7 @@ class DivinityViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
     filterset_class = DivinityFilter
 
 
-class HeroViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
+class HeroViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet, UserCreatedMixin):
    """A viewset for viewing hero instances."""
    queryset = Hero.objects.all()
    serializer_class = HeroListSerializer
@@ -70,7 +75,7 @@ class HeroViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
    filterset_class = HeroFilter
 
 
-class MythicalCreatureViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
+class MythicalCreatureViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet, UserCreatedMixin):
     """A viewset for viewing mythical creature instances."""
     queryset = MythicalCreature.objects.all()
     serializer_class = MythicalCreatureListSerializer

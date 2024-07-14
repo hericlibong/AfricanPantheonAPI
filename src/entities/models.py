@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from PIL import Image
 from .validator import UniqueNameMixin
+from django.conf import settings
 
 
 
@@ -49,6 +50,8 @@ class Divinity(models.Model, UniqueNameMixin):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='divinity')
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_divinities', null=True, blank=True, help_text="Utilisateur qui a créé la divinité.")
+    
 
     def validate_name(self):
         if Category.objects.filter(name=self.name).exists():
@@ -75,6 +78,7 @@ class Hero(models.Model, UniqueNameMixin):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='heroes', help_text="Catégorie à laquelle appartient le héros.")
     date_created = models.DateTimeField(auto_now_add=True, help_text="Date de création du héros.")
     date_updated = models.DateTimeField(auto_now=True, help_text="Date de la dernière mise à jour du héros.")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_heroes', null=True, blank=True, help_text="Utilisateur qui a créé le héros.")
 
     def validate_name(self):
         if Category.objects.filter(name=self.name).exists():
@@ -100,6 +104,7 @@ class MythicalCreature(models.Model, UniqueNameMixin):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='creatures', help_text="Catégorie à laquelle appartient la créature mythique.")
     date_created = models.DateTimeField(auto_now_add=True, help_text="Date de création de la créature.")
     date_updated = models.DateTimeField(auto_now=True, help_text="Date de la dernière mise à jour de la créature.")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_creatures', null=True, blank=True, help_text="Utilisateur qui a créé la créature.")
 
     def clean(self):
         if Category.objects.filter(name=self.name).exists():
