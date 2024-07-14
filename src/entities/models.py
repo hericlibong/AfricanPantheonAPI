@@ -26,7 +26,7 @@ class Category(models.Model, UniqueNameMixin):
         return self.name
 
 
-class Divinity(models.Model, UniqueNameMixin):
+class Divinity(models.Model):
     name = models.CharField(max_length=100, help_text="Le nom principal de la divinité, y compris d'éventuels surnoms ou variantes régionales.")
     gender = models.CharField(max_length=1,default="M", choices = [('M', 'Male'), ('F', 'Female'), ('A', 'Androgyn')], 
                               help_text="Genre de la divinité. Elle peut être féminine, masculine, ou androgyne")
@@ -53,9 +53,9 @@ class Divinity(models.Model, UniqueNameMixin):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_divinities', null=True, blank=True, help_text="Utilisateur qui a créé la divinité.")
     
 
-    def validate_name(self):
-        if Category.objects.filter(name=self.name).exists():
-            raise ValidationError("Hero already exists")
+    # def validate_name(self):
+    #     if Category.objects.filter(name=self.name).exists():
+    #         raise ValidationError("Hero already exists")
 
     def __str__(self):
         return self.name

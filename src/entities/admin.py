@@ -15,7 +15,7 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Divinity)
 class DivinityAdmin(admin.ModelAdmin):
     form = UniqueNameAdminForm
-    list_display = ('name', 'domain', 'gender', 'image')
+    list_display = ('name', 'domain', 'gender', 'image', 'created_by')
     search_fields = ('name', 'domain')
     readonly_fields = ('date_created', 'date_updated')
     
@@ -33,8 +33,21 @@ class DivinityAdmin(admin.ModelAdmin):
         }),
         ('Date Information', {
             'fields':('date_created', 'date_updated')
-        }),  
+        }),
+        (
+            ('User Information'), {
+                'fields': ('created_by', )
+            }),  
     )
+
+    # def save_model(self, request, obj, form, change):
+    #     if not obj.pk:  # Si l'objet est nouveau
+    #         obj.created_by = request.user
+    #     super().save_model(request, obj, form, change)
+
+    # def clean(self):
+    #     self.instance.clean()  # Appel de la méthode clean du modèle pour appliquer la validation
+    #     super().clean()
   
     
 @admin.register(Hero)
@@ -56,7 +69,11 @@ class HeroAdmin(admin.ModelAdmin):
         }),
         ('Date Information', {
             'fields':('date_created', 'date_updated')
-        }),  
+        }),
+        (
+            ('User Information'), {
+                'fields': ('created_by', )
+            }), 
     )
 
     
@@ -76,7 +93,11 @@ class MythicalCreatureAdmin(admin.ModelAdmin):
         }),
         ('Date Information', {
             'fields':('date_created', 'date_updated')
-        }),  
+        }),
+        (
+            ('User Information'), {
+                'fields': ('created_by', )
+            }),  
     )
 
     

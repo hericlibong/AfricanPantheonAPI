@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from user_profiles.models import UserProfile
 from .validator import ImageValidationMixin
 from .models import Divinity, Category, Hero, MythicalCreature
 
@@ -6,12 +8,12 @@ from .models import Divinity, Category, Hero, MythicalCreature
 
 class DivinityListSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    created_by = serializers.ReadOnlyField(source='created_by.email')
+    created_by = serializers.StringRelatedField()
 
     class Meta:
         model = Divinity
         fields = ['id', 'date_created', 'date_updated', 'name', 
-                  'gender', 'cultural_role', 'country', 'image', 'category']
+                  'gender', 'cultural_role', 'country', 'image', 'category', 'created_by']
     
     def validate_name(self, value):
         if Category.objects.filter(name=value).exists():
@@ -21,7 +23,7 @@ class DivinityListSerializer(ImageValidationMixin, serializers.ModelSerializer):
 
 class DivinityDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    created_by = serializers.ReadOnlyField(source='created_by.email')
+    created_by = serializers.PrimaryKeyRelatedField(queryset=UserProfile.objects.all(), required=False)
     
     class Meta:
         model = Divinity
@@ -30,12 +32,12 @@ class DivinityDetailSerializer(ImageValidationMixin, serializers.ModelSerializer
 
 class HeroListSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    created_by = serializers.ReadOnlyField(source='created_by.email')
+    created_by = serializers.StringRelatedField()
 
     class Meta:
         model = Hero
         fields = ['id', 'date_created', 'date_updated', 'name','titles', 'gender',
-                  'country', 'image', 'category']
+                  'country', 'image', 'category', 'created_by']
     
     def validate_name(self, value):
         if Hero.objects.filter(name=value).exists():
@@ -45,7 +47,7 @@ class HeroListSerializer(ImageValidationMixin, serializers.ModelSerializer):
 
 class HeroDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    created_by = serializers.ReadOnlyField(source='created_by.email')
+    created_by = serializers.PrimaryKeyRelatedField(queryset=UserProfile.objects.all(), required=False)
     
     class Meta:
         model = Hero
@@ -54,16 +56,16 @@ class HeroDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
 
 class MythicalCreatureListSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    created_by = serializers.ReadOnlyField(source='created_by.email')
+    created_by = serializers.StringRelatedField()
 
     class Meta:
         model = MythicalCreature
         fields = ['id', 'date_created', 'date_updated', 'name', 'appareance', 'habitat', 'country','image',
-                  'category']
+                  'category', 'created_by']
         
 class MythicalCreatureDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    created_by = serializers.ReadOnlyField(source='created_by.email')
+    created_by = serializers.PrimaryKeyRelatedField(queryset=UserProfile.objects.all(), required=False)
     
     class Meta:
         model = MythicalCreature

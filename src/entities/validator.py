@@ -15,7 +15,7 @@ class ImageValidationMixin:
 
 class UniqueNameMixin:
     def clean(self):
-        if self.__class__.objects.filter(name=self.name).exists():
+        if self.__class__.objects.filter(name=self.name).exclude(pk=self.pk).exists():
             raise ValidationError(f"{self.__class__.__name__} with this name already exists")
         super().clean()
 
