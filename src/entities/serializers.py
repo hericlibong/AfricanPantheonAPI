@@ -1,10 +1,12 @@
 from rest_framework import serializers
 
 from user_profiles.models import UserProfile
-from .validator import ImageValidationMixin
-from .models import Divinity, Category, Hero, MythicalCreature
+from .validator import ImageValidationMixin, CreatedByMixin
+from .models import Divinity, Category, Hero, MythicalCreature, ImageWithCaption
 
 
+
+# Dinivity serializers
 
 class DivinityListSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
@@ -20,15 +22,65 @@ class DivinityListSerializer(ImageValidationMixin, serializers.ModelSerializer):
             raise serializers.ValidationError("Divnity already exists")
         return value
 
+class ApperanceSerializer(serializers.Serializer):
+    gender = serializers.CharField(max_length=100, allow_blank=True)
+    distincts_physicals_signs = serializers.ListField(child=serializers.CharField(max_length=100), allow_empty=True)
 
-class DivinityDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
-    category = serializers.StringRelatedField()
-    created_by = serializers.PrimaryKeyRelatedField(queryset=UserProfile.objects.all(), required=False)
-    
+class IdentitySerializer(serializers.Serializer):
+    cultural_role = serializers.CharField(max_length=255, allow_blank=True)
+    pantheon = serializers.CharField(max_length=255, required = False, allow_blank=True)
+    alignment = serializers.CharField(max_length=255, required = False, allow_blank=True)
+
+class CategoryAssociationSerializer(serializers.Serializer):
+    domain = serializers.ListField(child=serializers.CharField(max_length=100), allow_empty=True)
+    main_symbol = serializers.ListField(child=serializers.CharField(max_length=100), allow_empty=True)
+
+class DescriptionSerializer(serializers.Serializer):
+    story_description = serializers.CharField(allow_blank=True)
+    characteristics = serializers.ListField(child=serializers.CharField(max_length=100),allow_empty=True)
+    manifestations = serializers.CharField(max_length=255, allow_blank=True)
+    symbolic_animals = serializers.ListField(child=serializers.CharField(max_length=100), allow_empty=True)
+    powers_objects = serializers.ListField(child=serializers.CharField(max_length=100), allow_empty=True)
+
+
+class OriginNationlitySerializer(serializers.Serializer):
+    country = serializers.CharField(max_length=100, allow_blank=True)
+    origin = serializers.CharField(max_length=100, allow_blank=True)
+    ethnicity = serializers.ListField(child=serializers.CharField(max_length=100), allow_empty=True)
+
+
+class GenealogySerializer(serializers.Serializer):
+    parents = serializers.ListField(child=serializers.CharField(max_length=100), allow_empty=True)
+    descendants = serializers.ListField(child=serializers.CharField(max_length=100), allow_empty=True)
+    conjoint = serializers.ListField(child=serializers.CharField(max_length=100), allow_empty=True)
+
+
+class ImageWithCaptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageWithCaption
+        fields = ['image', 'image_caption']
+
+
+
+class DivinityDetailSerializer(CreatedByMixin, serializers.ModelSerializer):
+    appearance = ApperanceSerializer(source='*')
+    identity = IdentitySerializer(source='*')
+    category_association = CategoryAssociationSerializer(source='*')
+    description = DescriptionSerializer(source='*')
+    origins_natinality = OriginNationlitySerializer(source='*')
+    genealogy = GenealogySerializer(source='*')
+    images = ImageWithCaptionSerializer(many=True, read_only=True)
+
     class Meta:
         model = Divinity
-        fields = '__all__'
+        fields = [
+            'id', 'name', 'category', 'date_created', 'date_updated',  'created_by',
+            'appearance', 'identity', 'category_association', 'description',
+            'origins_natinality', 'genealogy', 'images'
+        ]    
 
+
+# Hero serializers
 
 class HeroListSerializer(ImageValidationMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
@@ -45,13 +97,16 @@ class HeroListSerializer(ImageValidationMixin, serializers.ModelSerializer):
         return value
         
 
-class HeroDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
+class HeroDetailSerializer(ImageValidationMixin, CreatedByMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    created_by = serializers.PrimaryKeyRelatedField(queryset=UserProfile.objects.all(), required=False)
+    
     
     class Meta:
         model = Hero
         fields = '__all__'
+        reda_only_fields = ['created_by']
+
+    
 
 
 class MythicalCreatureListSerializer(ImageValidationMixin, serializers.ModelSerializer):
@@ -63,14 +118,16 @@ class MythicalCreatureListSerializer(ImageValidationMixin, serializers.ModelSeri
         fields = ['id', 'date_created', 'date_updated', 'name', 'appareance', 'habitat', 'country','image',
                   'category', 'created_by']
         
-class MythicalCreatureDetailSerializer(ImageValidationMixin, serializers.ModelSerializer):
+class MythicalCreatureDetailSerializer(ImageValidationMixin, CreatedByMixin, serializers.ModelSerializer):
     category = serializers.StringRelatedField()
-    created_by = serializers.PrimaryKeyRelatedField(queryset=UserProfile.objects.all(), required=False)
+    
     
     class Meta:
         model = MythicalCreature
         fields = '__all__'
+        reda_only_fields = ['created_by']
 
+    
 
 
 class CategoryListSerializer(serializers.ModelSerializer):
@@ -88,7 +145,6 @@ class CategoryListSerializer(serializers.ModelSerializer):
         if data['name'] not in data['description']:
             raise serializers.ValidationError('Category name must be in description')
         return data
-
 
 
 class CategoryDetailSerializer(serializers.ModelSerializer):

@@ -48,6 +48,14 @@ class AdminHeroViewSet(MultipleSerializerMixin, ModelViewSet, UserCreatedMixin):
     filter_backends = [DjangoFilterBackend]
     filterset_class = HeroFilter
 
+class AdminMythicalCreatureViewSet(MultipleSerializerMixin, ModelViewSet, UserCreatedMixin):
+    """A viewset for viewing and editing mythical creature instances."""
+    queryset = MythicalCreature.objects.all()
+    serializer_class = MythicalCreatureListSerializer
+    detail_serializer_class = MythicalCreatureDetailSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MythicalCreatureFilter
+
 
 class CategoryViewSet(MultipleSerializerMixin, ReadOnlyModelViewSet):
     """A viewset for viewing category instances."""

@@ -15,15 +15,15 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Divinity)
 class DivinityAdmin(admin.ModelAdmin):
     form = UniqueNameAdminForm
-    list_display = ('name', 'domain', 'gender', 'image', 'created_by')
+    list_display = ('name', 'domain', 'gender', 'created_by')
     search_fields = ('name', 'domain')
-    readonly_fields = ('date_created', 'date_updated')
+    readonly_fields = ('date_created', 'date_updated', 'created_by')
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'domain', 'category', 'main_symbol', 'associated_myths', 'characteristics', 
+            'fields': ('name', 'domain', 'category', 'main_symbol', 'characteristics', 
               'manifestations', 'symbolic_animals', 'power_objects', 'cultural_role', 
-              'festivals', 'country', 'origin', 'ethnicity', 'gender')
+              'country', 'origin', 'ethnicity', 'gender')
         }),
         ('Image Information', {
             'fields':('image', 'image_caption')
@@ -39,15 +39,15 @@ class DivinityAdmin(admin.ModelAdmin):
                 'fields': ('created_by', )
             }),  
     )
+   
 
-    # def save_model(self, request, obj, form, change):
-    #     if not obj.pk:  # Si l'objet est nouveau
-    #         obj.created_by = request.user
-    #     super().save_model(request, obj, form, change)
+    def save_model(self, request, obj, form, change):
+        """Set the user field automatically."""
+        if not obj.pk:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
 
-    # def clean(self):
-    #     self.instance.clean()  # Appel de la méthode clean du modèle pour appliquer la validation
-    #     super().clean()
+    
   
     
 @admin.register(Hero)
@@ -55,7 +55,7 @@ class HeroAdmin(admin.ModelAdmin):
     form = UniqueNameAdminForm
     list_display = ('name', 'gender', 'image')
     search_fields = ('name', '')
-    readonly_fields = ('date_created', 'date_updated')
+    readonly_fields = ('date_created', 'date_updated', 'created_by')
     fieldsets = (
         ('Basic Information', {
             'fields': ('name', 'gender', 'story', 'titles', 'achievements', 'enemies', 'allies', 
@@ -76,13 +76,19 @@ class HeroAdmin(admin.ModelAdmin):
             }), 
     )
 
+    def save_model(self, request, obj, form, change):
+        """Set the user field automatically."""
+        if not obj.pk:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
     
 @admin.register(MythicalCreature)
 class MythicalCreatureAdmin(admin.ModelAdmin):
     form = UniqueNameAdminForm
     list_display = ('name', 'description', 'image')
     search_fields = ('name', '')
-    readonly_fields = ('date_created', 'date_updated')
+    readonly_fields = ('date_created', 'date_updated', 'created_by')
     fieldsets = (
         ('Basic Information', {
             'fields': ('name', 'description', 'country', 'habitat', 
@@ -99,5 +105,11 @@ class MythicalCreatureAdmin(admin.ModelAdmin):
                 'fields': ('created_by', )
             }),  
     )
+
+    def save_model(self, request, obj, form, change):
+        """Set the user field automatically."""
+        if not obj.pk:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
 
     

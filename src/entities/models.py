@@ -1,61 +1,92 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.contrib.postgres.fields import ArrayField
 from PIL import Image
 from .validator import UniqueNameMixin
 from django.conf import settings
 
 
-
-
 def validate_image(image):
+     """Validate that the uploaded file is an image."""
      valid_mime_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
      file_mime_type = Image.open(image).get_format_mimetype()
      if file_mime_type not in valid_mime_types:
          raise ValidationError('Unsupported file type. ')
      
+def upload_to(instance, filename, entity_type):
+    """Generate a unique path for uploaded images."""
+    return f'{entity_type}/{instance.id}/{filename}'
+     
 
 class Category(models.Model, UniqueNameMixin):
+    """Model representing a category of entities."""
     name = models.CharField(max_length=100, help_text="Le nom de la categorie")
     description = models.TextField(max_length=100, help_text="Texte qui décrit la catégorie")
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
-        
-
 
     def __str__(self):
         return self.name
 
 
-class Divinity(models.Model):
-    name = models.CharField(max_length=100, help_text="Le nom principal de la divinité, y compris d'éventuels surnoms ou variantes régionales.")
-    gender = models.CharField(max_length=1,default="M", choices = [('M', 'Male'), ('F', 'Female'), ('A', 'Androgyn')], 
-                              help_text="Genre de la divinité. Elle peut être féminine, masculine, ou androgyne")
-    domain = models.CharField(max_length=100, help_text="Les principaux domaines ou éléments associés à la divinité (e.g., tonnerre, amour, guerre).")
-    main_symbol = models.CharField(max_length=100, help_text="Un élément ou objet principal associé à la divinité, tel qu'un animal, une plante, ou un objet spécifique.")
-    associated_myths = models.TextField(help_text="Descriptions des mythes ou légendes les plus connus impliquant la divinité.")
-    characteristics = models.TextField(help_text="Traits principaux ou aspects de la personnalité mythique, par exemple, vengeur, protecteur, sage.")
-    manifestations = models.TextField(help_text="Descriptions des formes que la divinité peut prendre dans les récits mythologiques.")
-    symbolic_animals = models.CharField(max_length=100, help_text="Animaux qui sont fréquemment liés à la divinité dans les mythes ou comme symboles.")
-    power_objects = models.CharField(max_length=100, help_text="Objets mythiquement significatifs associés à la divinité, tels qu'une arme ou un artefact.")
-    cultural_role = models.TextField(help_text="Description du rôle de la divinité dans la culture, par exemple, son influence sur l'art, la littérature, ou les pratiques sociales.")
-    festivals = models.TextField(help_text="Mentions de festivals ou célébrations historiquement liés à la divinité, en se concentrant sur leur aspect culturel ou commémoratif.")
-    country = models.CharField(max_length=50, blank=True, null=True, help_text="Pays actuel d'où est issue la divinité")
-    origin = models.CharField(max_length=100, help_text="Région ou culture spécifique d'où la divinité est originaire.")
-    ethnicity = models.CharField(max_length=100, help_text="Groupe ethnique principalement associé à la divinité.")
-    image = models.ImageField(upload_to='divinity_images/', null=True, blank=True, validators=[validate_image], 
-                              help_text="Champ pour stocker des images représentatives ou artistiques de la divinité.")
-    image_caption = models.CharField(max_length=255, blank=True, null=True)
-    parents = models.CharField(max_length=255, blank=True, null=True, help_text="Noms des parents de la divinité, si applicable.")
-    descendants = models.CharField(max_length=255, blank=True, null=True, help_text="Noms des descendants de la divinité, si applicable.")
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='divinity')
-    date_created = models.DateTimeField(auto_now_add=True)
-    date_updated = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_divinities', null=True, blank=True, help_text="Utilisateur qui a créé la divinité.")
+class ImageWithCaption(models.Model):
+    """Model to store images with captions."""
+    image = models.ImageField(upload_to=upload_to, 
+                              null=True, 
+                              blank=True, 
+                              validators=[validate_image], 
+                              help_text="Champ pour stocker des images représentatives ou artistiques de la créature.")
+    image_caption = models.CharField(max_length=255, 
+                                     null=True, 
+                                     blank=True, 
+                                     help_text="Légende descriptive de l'image de la créature.")
+   
+
+    def __str__(self):
+        return self.image_caption or 'no caption'
     
 
-    # def validate_name(self):
-    #     if Category.objects.filter(name=self.name).exists():
-    #         raise ValidationError("Hero already exists")
+class Divinity(models.Model, UniqueNameMixin):
+    name = models.CharField(max_length=100, help_text="The main name of the deity, including any nicknames or regional variants.")
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='divinities', help_text="The category to which the deity belongs.")
+    date_created = models.DateTimeField(auto_now_add=True, help_text="The date the deity was created.")
+    date_updated = models.DateTimeField(auto_now=True, help_text="The date the deity was last updated.")	
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_divinities', null=True, blank=True, help_text="The user who created the deity.")
+
+    # Appareance
+    gender = models.CharField(max_length=1, choices=[('M', 'Man'), ('F', 'Female'), ('A', 'Androgyn')],
+                            help_text="The gender of the divinity")
+    distincts_physicals_signs = ArrayField(models.CharField(max_length=100), blank=True, null=True, 
+                                                  help_text='Distinct physical signs or attributes of the deity. Ex : "turbaned", "masqued", "with a spear", "white beard"')
+    # Identity
+    cultural_role = models.CharField(max_length=100, help_text="Description of the deity's role in the culture, e.g., 'God of Thunder' , 'goddess of love', etc.")
+    pantheon = models.CharField(max_length=100, blank=True, null=True, help_text="The pantheon or group of deities to which the deity belongs.")
+    alignment = models.CharField(max_length=100, blank=True, null=True, help_text="The moral or ethical alignment of the deity, e.g., good, evil, neutral.")
+
+    # Categories and Associations
+    domain = ArrayField(models.CharField(max_length=100), blank=True, null=True,  help_text="The main domains or elements associated with the deity, e.g., thunder, love, war.")
+    main_symbol = ArrayField(models.CharField(max_length=100), blank=True, null=True, help_text="A main element or object associated with the deity, such as an animal, plant, or specific object.")
+
+    # Description
+    story_description = models.TextField(blank=True, null=True, help_text="Description of the deity's story or mythological background.")
+    characteristics = ArrayField(models.CharField(max_length=100), blank=True, null=True, help_text="Main traits or aspects of the mythical personality, e.g., vengeful, protective, wise.")
+    manifestations = models.CharField(max_length=255, blank=True, null=True, 
+                                      help_text="Descriptions of the forms the deity can take in mythological narratives. e.g: 'beautiful woman wearing jewelry' or 'man often depicted in white outfit'.")
+    symbolic_animals = ArrayField(models.CharField(max_length=100), blank=True, null=True, help_text="Animals that are frequently linked to the deity in myths or as symbols.")
+    power_objects = ArrayField(models.CharField(max_length=100), blank=True, null=True, help_text="Mythically significant objects associated with the deity, such as a weapon or artifact.")
+
+    # Origins and Nationality
+    country = models.CharField(max_length=50, blank=True, null=True, help_text="Current country from which the deity originates.")
+    origin = models.CharField(max_length=100, blank=True, null=True, help_text="Specific region or culture from which the deity originates.")
+    ethnicity = ArrayField(models.CharField(max_length=100), blank=True, null=True, help_text="Ethnic(s) group(s) primarily associated with the deity.")
+
+    # Genealogy
+    parents = ArrayField(models.CharField(max_length=100), blank=True, null=True, help_text="Names of the deity's parents, if applicable.")
+    descendants = ArrayField(models.CharField(max_length=100), blank=True, null=True, help_text="Names of the deity's descendants, if applicable.")
+    conjoint = ArrayField(models.CharField(max_length=100), blank=True, null=True, help_text="Name of the deity's spouse or partner, if applicable.")
+
+    # Images
+    images = models.ManyToManyField(ImageWithCaption, blank=True, related_name='divinities', help_text="Field to store representative or artistic images of the deity.")
 
     def __str__(self):
         return self.name

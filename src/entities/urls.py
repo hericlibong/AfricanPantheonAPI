@@ -1,7 +1,8 @@
 from django.urls import path, include
 from rest_framework import routers
 from .views import(DivinityViewSet, HeroViewSet, CategoryViewSet, 
-                   MythicalCreatureViewSet, AdminCategoryViewSet, AdminDivinityViewSet, AdminHeroViewSet)
+                   MythicalCreatureViewSet, AdminCategoryViewSet, AdminDivinityViewSet, 
+                   AdminHeroViewSet, AdminMythicalCreatureViewSet)
 
 
 router = routers.SimpleRouter()
@@ -12,6 +13,7 @@ router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'admin/categories', AdminCategoryViewSet, basename='admin-categories')
 router.register(r'admin/divinities', AdminDivinityViewSet, basename='admin-divinity')
 router.register(r'admin/heroes', AdminHeroViewSet, basename='admin-heroes')
+router.register(r'admin/creatures', AdminMythicalCreatureViewSet, basename='admin-creatures')
 
 urlpatterns = [
     path('', include(router.urls))
